@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title></title>
+        <style media="screen">
+            body,
+            canvas,
+            html {
+                width: 100%;
+                height: 100%;
+                margin: 0;
+                padding: 0;
+                border: 0;
+                overflow: hidden;
+                max-width: 500px;
+                max-height: 512px;
+            }
+            body {
+                background: #273134;
+                color: #89c;
+            }
+
+        </style>
+        <script type="text/javascript">
+            window.exports = window
+        </script>
+        <script src="lib/util.js" charset="utf-8"></script>
+        <script src="lib/World.js" charset="utf-8"></script>
+        <script src="lib/Net.js" charset="utf-8"></script>
+        <script src="lib/Dna.js" charset="utf-8"></script>
+        <script src="lib/flood.js" charset="utf-8"></script>
+        <script type="text/javascript">
+            var flood = new Flood({
+                primero: (args, callback) => {
+                    // Client
+                    var pool = []
+                    for (var i in args.pool)
+                        pool.push(Dna.unserialize(args.pool[i]))
+
+                    var w = new World()
+                    w.init(pool, { mix: 100 })
+
+                    var done = () => {
+                        var best = w.best()
+                        // console.log('updated', best.score())
+                        callback(best)
+                    }
+
+                    var int = setInterval(() => {
+                    // while (true)
+                        if (!w.finished()) {
+                            w.update()
+                        } else {
+                            w.destroy()
+                            done()
+                            clearInterval(int)
+                            // break
+                        }
+                    }, 100)
+
+                }
+            })
+            flood.start(util.query('s'))
+        </script>
+    </head>
+    <body>
+    </body>
+</html>
