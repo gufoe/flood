@@ -154,7 +154,7 @@ var Pop = function(size) {
 
         // REVIEW: Shouldn't trust who sent the result
         var dna = Dna.unserialize(dna)
-        cli.red('Evaluated: ' + dna.score() + '\n')
+        cli.red(dna.score() + '\t')
 
         var subject = {
             id: this.next_id++,
@@ -189,7 +189,7 @@ var init = () => {
         cli.blue('%d\n', _.pop.tested)
 
         cli.moveTo(1, 6)
-    }, 200)
+    }, 500)
 }
 
 init()

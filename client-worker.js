@@ -7,37 +7,52 @@ importScripts('lib/flood.js')
 
 var test_primero = (args, callback) => {
     // Client
-    var pool = []
+    var _pool = [],
+        _best = null,
+        _cycles = 0
+
     for (var i in args.pool)
-        pool.push(Dna.unserialize(args.pool[i]))
+        _pool.push(Dna.unserialize(args.pool[i]))
 
-    var w = new World()
-    w.init(pool, {
-        mix: 2,
-        field: '.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,x,x,x,x,x,.,x,x,x,x,x,x,.,x,x,x,x,x,.,.,x,.,.,.,.,.,x,x,x,x,x,x,.,.,.,.,.,x,.,.,x,.,x,x,x,.,.,.,x,x,.,.,.,x,x,x,.,x,.,.,.,.,.,.,x,x,x,.,x,x,.,x,x,x,.,.,.,.,.,.,x,x,x,.,x,.,.,.,.,.,.,.,.,x,.,x,x,x,.,.,.,.,x,.,' +
-            'x,.,x,x,x,x,x,x,.,x,.,x,.,.,.,x,x,.,x,.,.,.,x,x,x,x,x,x,.,.,.,x,.,x,x,.,.,.,x,x,x,.,x,x,x,x,x,x,.,x,x,x,.,.,.,.,x,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,x,.,.,x,x,x,.,x,x,x,x,x,x,x,x,x,x,.,x,x,x,.,.,x,x,x,.,.,.,.,.,.,.,.,.,.,.,.,x,x,x,.,.,x,x,x,.,x,x,x,.,x,' +
-            'x,.,x,x,x,.,x,x,x,.,.,.,.,.,.,.,.,.,.,x,x,.,.,.,.,.,.,.,.,.',
-        w: 20,
-        h: 14,
-        rounds: 100
-    })
+    var done = (best) => {
 
-    var done = () => {
-        var best = w.best()
-            // console.log('updated', best.score())
-        callback(best)
+        if (!_best || best.score() > _best.score()) {
+            _best = best
+        }
+        // console.log('updated', best.score())
+        if (++_cycles > 100) {
+            console.log('done, best scored', _best.score())
+            callback(_best)
+        } else
+            start()
     }
 
-    while (true) {
-        if (!w.finished()) {
-            w.update()
-        } else {
-            console.log('done, best scored', w.best().score())
-            w.destroy()
-            done()
-            break
+    var start = () => {
+        var w = new World()
+        w.init(_pool, {
+            mix: 2,
+            field: '.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,x,x,x,x,x,.,x,x,x,x,x,x,.,x,x,x,x,x,.,.,x,.,.,.,.,.,x,x,x,x,x,x,.,.,.,.,.,x,.,.,x,.,x,x,x,.,.,.,x,x,.,.,.,x,x,x,.,x,.,.,.,.,.,.,x,x,x,.,x,x,.,x,x,x,.,.,.,.,.,.,x,x,x,.,x,.,.,.,.,.,.,.,.,x,.,x,x,x,.,.,.,.,x,.,' +
+                'x,.,x,x,x,x,x,x,.,x,.,x,.,.,.,x,x,.,x,.,.,.,x,x,x,x,x,x,.,.,.,x,.,x,x,.,.,.,x,x,x,.,x,x,x,x,x,x,.,x,x,x,.,.,.,.,x,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,x,.,.,x,x,x,.,x,x,x,x,x,x,x,x,x,x,.,x,x,x,.,.,x,x,x,.,.,.,.,.,.,.,.,.,.,.,.,x,x,x,.,.,x,x,x,.,x,x,x,.,x,' +
+                'x,.,x,x,x,.,x,x,x,.,.,.,.,.,.,.,.,.,.,x,x,.,.,.,.,.,.,.,.,.',
+            w: 20,
+            h: 14,
+            rounds: 200
+        })
+
+        while (true) {
+            if (!w.finished()) {
+                w.update()
+            } else {
+                w.destroy()
+                setTimeout(() => {
+                    done(w.best())
+                })
+                break
+            }
         }
     }
+
+    start()
 }
 
 var flood = new Flood({
