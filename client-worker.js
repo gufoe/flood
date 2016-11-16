@@ -14,8 +14,6 @@ var test_primero = (args, callback) => {
     var w = new World()
     w.init(pool, {
         mix: 2,
-        canvas: util.query('draw') ?
-            document.querySelector('#canvas') : null,
         field: '.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,x,x,x,x,x,.,x,x,x,x,x,x,.,x,x,x,x,x,.,.,x,.,.,.,.,.,x,x,x,x,x,x,.,.,.,.,.,x,.,.,x,.,x,x,x,.,.,.,x,x,.,.,.,x,x,x,.,x,.,.,.,.,.,.,x,x,x,.,x,x,.,x,x,x,.,.,.,.,.,.,x,x,x,.,x,.,.,.,.,.,.,.,.,x,.,x,x,x,.,.,.,.,x,.,' +
             'x,.,x,x,x,x,x,x,.,x,.,x,.,.,.,x,x,.,x,.,.,.,x,x,x,x,x,x,.,.,.,x,.,x,x,.,.,.,x,x,x,.,x,x,x,x,x,x,.,x,x,x,.,.,.,.,x,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,x,.,.,x,x,x,.,x,x,x,x,x,x,x,x,x,x,.,x,x,x,.,.,x,x,x,.,.,.,.,.,.,.,.,.,.,.,.,x,x,x,.,.,x,x,x,.,x,x,x,.,x,' +
             'x,.,x,x,x,.,x,x,x,.,.,.,.,.,.,.,.,.,.,x,x,.,.,.,.,.,.,.,.,.',
@@ -30,18 +28,16 @@ var test_primero = (args, callback) => {
         callback(best)
     }
 
-    var int = setInterval(() => {
-            if (!w.finished()) {
-                w.update()
-            } else {
-                console.log('done, best scored', w.best().score())
-                w.destroy()
-                done()
-                clearInterval(int)
-            }
-        }, util.query('draw') ?
-        30 :
-        0)
+    while (true) {
+        if (!w.finished()) {
+            w.update()
+        } else {
+            console.log('done, best scored', w.best().score())
+            w.destroy()
+            done()
+            break
+        }
+    }
 }
 
 var flood = new Flood({
