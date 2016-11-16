@@ -153,20 +153,8 @@ var Pop = function(size) {
     this.insert = (dna) => {
         this.tested++
 
-        // Server:
-        var pool = [Dna.unserialize(dna)]
-        var w = new World()
-        w.init(pool, {
-            field: '.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,x,x,x,x,x,.,x,x,x,x,x,x,.,x,x,x,x,x,.,.,x,.,.,.,.,.,x,x,x,x,x,x,.,.,.,.,.,x,.,.,x,.,x,x,x,.,.,.,x,x,.,.,.,x,x,x,.,x,.,.,.,.,.,.,x,x,x,.,x,x,.,x,x,x,.,.,.,.,.,.,x,x,x,.,x,.,.,.,.,.,.,.,.,x,.,x,x,x,.,.,.,.,x,.,x,.,x,x,x,x,x,x,.,x,.,x,.,.,.,x,x,.,x,.,.,.,x,x,x,x,x,x,.,.,.,x,.,x,x,.,.,.,x,x,x,.,x,x,x,x,x,x,.,x,x,x,.,.,.,.,x,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,x,.,.,x,x,x,.,x,x,x,x,x,x,x,x,x,x,.,x,x,x,.,.,x,x,x,.,.,.,.,.,.,.,.,.,.,.,.,x,x,x,.,.,x,x,x,.,x,x,x,.,x,x,.,x,x,x,.,x,x,x,.,.,.,.,.,.,.,.,.,.,x,x,.,.,.,.,.,.,.,.,.',
-            w: 20,
-            h: 14,
-            rounds: 200
-        })
-
-        while (!w.finished())
-            w.update()
-        w.destroy()
-        var dna = w.best()
+        // REVIEW: Shouldn't trust who sent the result
+        var dna = Dna.unserialize(dna)
         cli.red('Evaluated: ' + dna.score() + '\n')
 
         var subject = {
