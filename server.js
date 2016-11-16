@@ -20,7 +20,6 @@ var _ = {
 
         pop: {
             size: 1000,
-            net: [2, 20, 3, 1],
         },
     }
 }
@@ -45,15 +44,6 @@ var Client = function(server, ws) {
         this.last_seen = now
 
         switch (data.type) {
-            case 'stats':
-                this.send('stats', {
-                    workers: _.server.clients.length,
-                    time: _.server.time,
-                    generation: _.pop.tested,
-                    best: _.pop.best().score,
-                })
-                break
-
             case 'res':
                 _.pop.insert(data.args)
 
@@ -104,12 +94,22 @@ var Server = function() {
     this.wss.on('connection', function(ws) {
         self.clients.push(new Client(self, ws))
     })
+
+    setInterval(() => {
+        var stats = {
+            workers: _.server.clients.length,
+            time: _.server.time,
+            generation: _.pop.tested,
+            best: _.pop.best().score,
+        }
+        for (var i in this.clients)
+            this.clients[i].send('stats', stats)
+    }, 5000)
 }
 
-var Pop = function(conf) {
+var Pop = function(size) {
     var self = this
-    this.conf = conf
-    this.size = this.conf.size
+    this.size = size
     this.population = []
     this.next_id = 1
     this.tested = 0
@@ -119,7 +119,7 @@ var Pop = function(conf) {
     for (var i = 0; i < this.size; i++) {
         this.population.push({
             id: this.next_id++,
-            dna: Dna.gen({net: conf.net}),
+            dna: Dna.gen(),
             score: 0
         })
     }
@@ -156,13 +156,18 @@ var Pop = function(conf) {
         // Server:
         var pool = [Dna.unserialize(dna)]
         var w = new World()
-        w.init(pool, {})
+        w.init(pool, {
+            field: '.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,x,x,x,x,x,.,x,x,x,x,x,x,.,x,x,x,x,x,.,.,x,.,.,.,.,.,x,x,x,x,x,x,.,.,.,.,.,x,.,.,x,.,x,x,x,.,.,.,x,x,.,.,.,x,x,x,.,x,.,.,.,.,.,.,x,x,x,.,x,x,.,x,x,x,.,.,.,.,.,.,x,x,x,.,x,.,.,.,.,.,.,.,.,x,.,x,x,x,.,.,.,.,x,.,x,.,x,x,x,x,x,x,.,x,.,x,.,.,.,x,x,.,x,.,.,.,x,x,x,x,x,x,.,.,.,x,.,x,x,.,.,.,x,x,x,.,x,x,x,x,x,x,.,x,x,x,.,.,.,.,x,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,x,.,.,x,x,x,.,x,x,x,x,x,x,x,x,x,x,.,x,x,x,.,.,x,x,x,.,.,.,.,.,.,.,.,.,.,.,.,x,x,x,.,.,x,x,x,.,x,x,x,.,x,x,.,x,x,x,.,x,x,x,.,.,.,.,.,.,.,.,.,.,x,x,.,.,.,.,.,.,.,.,.',
+            w: 20,
+            h: 14,
+            rounds: 200
+        })
 
         while (!w.finished())
             w.update()
         w.destroy()
         var dna = w.best()
-        cli.red('Evaluated:' + dna.score() + '\n')
+        cli.red('Evaluated: ' + dna.score() + '\n')
 
         var subject = {
             id: this.next_id++,
@@ -179,10 +184,7 @@ var Pop = function(conf) {
 
 var init = () => {
     _.server = new Server()
-    _.pop = new Pop({
-        size: _.conf.pop.size,
-        net: _.conf.pop.net
-    })
+    _.pop = new Pop(_.conf.pop.size)
 
     setInterval(() => {
         cli.clear()

@@ -5,7 +5,6 @@
         <title></title>
         <style media="screen">
             body,
-            canvas,
             html {
                 width: 100%;
                 height: 100%;
@@ -13,12 +12,14 @@
                 padding: 0;
                 border: 0;
                 overflow: hidden;
-                max-width: 500px;
-                max-height: 512px;
             }
             body {
                 background: #273134;
                 color: #89c;
+            }
+
+            canvas {
+                max-width: 100%;
             }
 
         </style>
@@ -39,7 +40,14 @@
                         pool.push(Dna.unserialize(args.pool[i]))
 
                     var w = new World()
-                    w.init(pool, { mix: 100 })
+                    w.init(pool, {
+                        mix: 2,
+                        canvas: util.query('draw') ? document.querySelector('#canvas') : null,
+                        field: '.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,x,x,x,x,x,.,x,x,x,x,x,x,.,x,x,x,x,x,.,.,x,.,.,.,.,.,x,x,x,x,x,x,.,.,.,.,.,x,.,.,x,.,x,x,x,.,.,.,x,x,.,.,.,x,x,x,.,x,.,.,.,.,.,.,x,x,x,.,x,x,.,x,x,x,.,.,.,.,.,.,x,x,x,.,x,.,.,.,.,.,.,.,.,x,.,x,x,x,.,.,.,.,x,.,x,.,x,x,x,x,x,x,.,x,.,x,.,.,.,x,x,.,x,.,.,.,x,x,x,x,x,x,.,.,.,x,.,x,x,.,.,.,x,x,x,.,x,x,x,x,x,x,.,x,x,x,.,.,.,.,x,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,x,.,.,x,x,x,.,x,x,x,x,x,x,x,x,x,x,.,x,x,x,.,.,x,x,x,.,.,.,.,.,.,.,.,.,.,.,.,x,x,x,.,.,x,x,x,.,x,x,x,.,x,x,.,x,x,x,.,x,x,x,.,.,.,.,.,.,.,.,.,.,x,x,.,.,.,.,.,.,.,.,.',
+                        w: 20,
+                        h: 14,
+                        rounds: 200
+                    })
 
                     var done = () => {
                         var best = w.best()
@@ -47,17 +55,28 @@
                         callback(best)
                     }
 
-                    var int = setInterval(() => {
-                    // while (true)
-                        if (!w.finished()) {
-                            w.update()
-                        } else {
-                            w.destroy()
-                            done()
-                            clearInterval(int)
-                            // break
-                        }
-                    }, 100)
+                    if (util.query('draw')) {
+                        var int = setInterval(() => {
+                            if (!w.finished()) {
+                                w.update()
+                            } else {
+                                console.log('done, best scored', w.best().score())
+                                w.destroy()
+                                done()
+                                clearInterval(int)
+                            }
+                        }, 40)
+                    } else {
+                        while (true)
+                            if (!w.finished()) {
+                                w.update()
+                            } else {
+                                console.log('done, best scored', w.best().score())
+                                w.destroy()
+                                done()
+                                break
+                            }
+                    }
 
                 }
             })
@@ -65,5 +84,6 @@
         </script>
     </head>
     <body>
+        <canvas id="canvas"></canvas>
     </body>
 </html>
