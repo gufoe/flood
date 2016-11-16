@@ -25,6 +25,7 @@
         </style>
         <script type="text/javascript">
             window.exports = window
+
         </script>
         <script src="lib/util.js" charset="utf-8"></script>
         <script type="text/javascript">
@@ -35,7 +36,7 @@
 
                 _worker.postMessage({
                     server: util.query('s'),
-                    draw: util.query('draw') ? { fps: 10 } : false
+                    draw: util.query('draw') ? { fps: 60 } : false
                 })
                 _worker.onmessage = (e) => {
                     var msg = e.data

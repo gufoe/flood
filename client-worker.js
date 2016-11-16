@@ -21,7 +21,7 @@ var test_primero = (args, callback) => {
             _best = best
         }
         // console.log('updated', best.score())
-        if (++_cycles > 100) {
+        if (++_cycles > 20) {
             console.log('done, best scored', _best.score())
             callback(_best)
         } else
@@ -38,13 +38,17 @@ var test_primero = (args, callback) => {
             w: 20,
             h: 14,
             draw: _args.draw,
-            rounds: 200
+            rounds: 1000
         })
 
         var update = () => {
             if (w.finished()) {
+		for (var i in w.pool) {
+			w.pool[i].finalize()
+		}
+		var best = w.best()
                 w.destroy()
-                done(w.best())
+                done(best)
                 return false
             } else {
                 w.update()
