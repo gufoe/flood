@@ -28,16 +28,43 @@
         </script>
         <script src="lib/util.js" charset="utf-8"></script>
         <script type="text/javascript">
-            var w = new Worker('client-worker.js')
-            w.postMessage(util.query('s'))
-            w.onmessage = (e) => {
-                var msg = e.data
-                if (msg.reload) {
-                    console.log('Worker requested reload')
-                    w.terminate()
-                    setTimeout(() => {
-                        location.reload()
-                    }, 1500)
+            window.onload = () => {
+                var _worker = new Worker('client-worker.js'),
+                    _canvas  = document.querySelector('#canvas'),
+                    _ctx = _canvas.getContext('2d')
+
+                _worker.postMessage({
+                    server: util.query('s'),
+                    draw: util.query('draw') ? { fps: 10 } : false
+                })
+                _worker.onmessage = (e) => {
+                    var msg = e.data
+                    if (msg.reload) {
+                        console.log('Worker requested reload')
+                        _worker.terminate()
+                        setTimeout(() => {
+                            location.reload()
+                        }, 1500)
+                    }
+
+                    if (msg.draw) {
+                        if (msg.width != _canvas.width || msg.height != _canvas.height) {
+                            _canvas.width = msg.width
+                            _canvas.height = msg.height
+                        }
+
+                        for (var i in msg.ops) {
+                            var op = msg.ops[i].op
+                                params = msg.ops[i].params
+
+                            // Call function vs set property
+                            if (params.constructor === Array) {
+                                _ctx[op].apply(_ctx, params)
+                            } else {
+                                _ctx[op] = params
+                            }
+                        }
+                    }
                 }
             }
         </script>

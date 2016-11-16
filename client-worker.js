@@ -4,6 +4,7 @@ importScripts('lib/Dna.js')
 importScripts('lib/World.js')
 importScripts('lib/flood.js')
 
+var _args = {}
 
 var test_primero = (args, callback) => {
     // Client
@@ -36,19 +37,30 @@ var test_primero = (args, callback) => {
                 'x,.,x,x,x,.,x,x,x,.,.,.,.,.,.,.,.,.,.,x,x,.,.,.,.,.,.,.,.,.',
             w: 20,
             h: 14,
+            draw: _args.draw,
             rounds: 200
         })
 
-        while (true) {
-            if (!w.finished()) {
-                w.update()
-            } else {
+        var update = () => {
+            if (w.finished()) {
                 w.destroy()
-                setTimeout(() => {
-                    done(w.best())
-                })
-                break
+                done(w.best())
+                return false
+            } else {
+                w.update()
+                return true
             }
+        }
+
+        if (_args.draw) {
+            console.log('Using setInterval to limit framerate')
+            var int = setInterval(() => {
+                if (!update()) {
+                    clearInterval(int)
+                }
+            }, 1000/_args.draw.fps)
+        } else {
+            while (update());
         }
     }
 
@@ -60,10 +72,11 @@ var flood = new Flood({
 })
 flood.on('close', () => {
     console.log('Lost connection')
-    postMessage({reload: true})
+    postMessage({
+        reload: true
+    })
 })
-
 onmessage = (e) => {
-    var server = e.data
-    flood.start(server)
+    _args = e.data
+    flood.start(_args.server)
 }

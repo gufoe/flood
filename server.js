@@ -20,7 +20,7 @@ var _ = {
         },
 
         pop: {
-            size: 1000,
+            size: argv.size ? argv.size : 1000,
         },
     }
 }
