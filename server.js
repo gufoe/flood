@@ -6,10 +6,11 @@ var fs = require('fs')
 var util = require('./lib/util.js')
 var World = require('./lib/World.js')
 var Dna = require('./lib/Dna.js')
+var argv = require('minimist')(process.argv.slice(2));
 
 var _ = {
     conf: {
-        ssl: false,
+        ssl: argv.ssl,
         ssl_files: {
             prv: 'cert/privkey.pem',
             crt: 'cert/cert.pem',
@@ -54,9 +55,6 @@ var Client = function(server, ws) {
                         _.pop.next(),
                         _.pop.next(),
                         _.pop.next(),
-                        _.pop.next(),
-                        _.pop.next(),
-                        _.pop.next(),
                     ]
                 })
                 break
@@ -78,6 +76,7 @@ var Server = function() {
     this.time = 0
 
     if (_.conf.ssl) {
+        console.log('Enabling ssl')
         var credentials = {
             key: fs.readFileSync(_.conf.ssl_files.prv, 'utf8'),
             cert: fs.readFileSync(_.conf.ssl_files.crt, 'utf8')

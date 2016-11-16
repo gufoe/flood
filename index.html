@@ -32,55 +32,18 @@
         <script src="lib/Dna.js" charset="utf-8"></script>
         <script src="lib/flood.js" charset="utf-8"></script>
         <script type="text/javascript">
-            var flood = new Flood({
-                primero: (args, callback) => {
-                    // Client
-                    var pool = []
-                    for (var i in args.pool)
-                        pool.push(Dna.unserialize(args.pool[i]))
-
-                    var w = new World()
-                    w.init(pool, {
-                        mix: 2,
-                        canvas: util.query('draw') ? document.querySelector('#canvas') : null,
-                        field: '.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,x,x,x,x,x,.,x,x,x,x,x,x,.,x,x,x,x,x,.,.,x,.,.,.,.,.,x,x,x,x,x,x,.,.,.,.,.,x,.,.,x,.,x,x,x,.,.,.,x,x,.,.,.,x,x,x,.,x,.,.,.,.,.,.,x,x,x,.,x,x,.,x,x,x,.,.,.,.,.,.,x,x,x,.,x,.,.,.,.,.,.,.,.,x,.,x,x,x,.,.,.,.,x,.,x,.,x,x,x,x,x,x,.,x,.,x,.,.,.,x,x,.,x,.,.,.,x,x,x,x,x,x,.,.,.,x,.,x,x,.,.,.,x,x,x,.,x,x,x,x,x,x,.,x,x,x,.,.,.,.,x,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,x,.,.,x,x,x,.,x,x,x,x,x,x,x,x,x,x,.,x,x,x,.,.,x,x,x,.,.,.,.,.,.,.,.,.,.,.,.,x,x,x,.,.,x,x,x,.,x,x,x,.,x,x,.,x,x,x,.,x,x,x,.,.,.,.,.,.,.,.,.,.,x,x,.,.,.,.,.,.,.,.,.',
-                        w: 20,
-                        h: 14,
-                        rounds: 100
-                    })
-
-                    var done = () => {
-                        var best = w.best()
-                        // console.log('updated', best.score())
-                        callback(best)
-                    }
-
-                    if (util.query('draw')) {
-                        var int = setInterval(() => {
-                            if (!w.finished()) {
-                                w.update()
-                            } else {
-                                console.log('done, best scored', w.best().score())
-                                w.destroy()
-                                done()
-                                clearInterval(int)
-                            }
-                        }, 40)
-                    } else {
-                        while (true)
-                            if (!w.finished()) {
-                                w.update()
-                            } else {
-                                console.log('done, best scored', w.best().score())
-                                w.destroy()
-                                done()
-                                break
-                            }
-                    }
-
+            var w = new Worker('client-worker.js')
+            w.postMessage(util.query('s'))
+            w.onmessage = (e) => {
+                var msg = e.data
+                if (msg.reload) {
+                    console.log('Worker requested reload')
+                    w.terminate()
+                    setTimeout(() => {
+                        location.reload()
+                    }, 1500)
                 }
-            })
-            flood.start(util.query('s'))
+            }
         </script>
     </head>
     <body>
