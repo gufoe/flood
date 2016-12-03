@@ -1,26 +1,27 @@
 "use strict";
 
-if (typeof require != 'undefined') {
-    var util = require('./util.js')
+{
+    importScripts('lib/util.js')
+    var util = this.util
 }
 
 (function() {
     var _recurrent = true
-    /**
-     * Constructor A:
-     * @param structure (ex. [4, 3, 2] 4 neurons in the input layer, 3 in the hidden layer and 2 in the output layer)
-     *
-     * Contructor B:
-     * @param Net net0
-     * @param Net net1
-     * @param float mutation rate (0 = 0;, 1 = 100%)
-     *
-     * Examples:
-     * to generate a new net, use: new Net([4, 3, 2])
-     * to clone a net, use: new Net(net.to.clone, net.to.clone, 0)
-     *
-     */
-    var Net = function(a, b, mrate) {
+        /**
+         * Constructor A:
+         * @param structure (ex. [4, 3, 2] 4 neurons in the input layer, 3 in the hidden layer and 2 in the output layer)
+         *
+         * Contructor B:
+         * @param Net net0
+         * @param Net net1
+         * @param float mutation rate (0 = 0;, 1 = 100%)
+         *
+         * Examples:
+         * to generate a new net, use: new Net([4, 3, 2])
+         * to clone a net, use: new Net(net.to.clone, net.to.clone, 0)
+         *
+         */
+    var Net = this.Net = function(a, b, mrate) {
 
         // The mutation rate, will be set later
         this.mrate = mrate ? mrate : 0;
@@ -43,7 +44,7 @@ if (typeof require != 'undefined') {
 
                 // Following neurons
                 if (_recurrent)
-                    syn+= l < struct.length - 2 ? struct[l + 2] : 0
+                    syn += l < struct.length - 2 ? struct[l + 2] : 0
 
                 for (var n = 0; n < this.network[l].length; n++) {
                     this.network[l][n] = zArray(syn)
@@ -187,16 +188,11 @@ if (typeof require != 'undefined') {
     }
 
     Net.genWeight = (factor) => {
-        return (factor ? factor : 1) * (1 - Math.random() * 2)
+        return 3 * (factor ? factor : 1) * (1 - Math.random() * 2)
     }
 
     function zArray(n) {
         return Array.apply(null, Array(n)).map(Number.prototype.valueOf, 0)
     }
-
-    if (util.module())
-        module.exports = Net
-    else
-        util.exports(this).Net = Net
 
 }).call(this)

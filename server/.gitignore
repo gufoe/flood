@@ -1,0 +1,8 @@
+build/
+bin/
+cert/
+server
+*.gch
+.debug*
+.gdb*
+peda-session-server.txt

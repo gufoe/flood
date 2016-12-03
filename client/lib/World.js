@@ -1,12 +1,11 @@
 "use strict";
 
-if (typeof require != 'undefined') {
-    var util = require('./util.js')
-    var Dna = require('./Dna.js')
+{
+    importScripts("lib/Dna.js")
 }
 
 (function() {
-    var World = function() {
+    var World = this.World = function() {
         var u = 30
         var objects = this.objects = []
         this.round = 1
@@ -15,21 +14,18 @@ if (typeof require != 'undefined') {
             this.players = []
             this.w = options.w
             this.h = options.h
-            this.map = this.parseField(options.field)
+            this.map = this.parseField(
+                '.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,x,x,x,x,x,.,x,x,x,x,x,x,.,x,x,x,x,x,.,.,x,.,.,.,.,.,x,x,x,x,x,x,.,.,.,.,.,x,.,.,x,.,x,x,x,.,.,.,x,x,.,.,.,x,x,x,.,x,.,.,.,.,.,.,x,x,x,.,x,x,.,x,x,x,.,.,.,.,.,.,x,x,x,.,x,.,.,.,.,.,.,.,.,x,.,x,x,x,.,.,.,.,x,.,' +
+                'x,.,x,x,x,x,x,x,.,x,.,x,.,.,.,x,x,.,x,.,.,.,x,x,x,x,x,x,.,.,.,x,.,x,x,.,.,.,x,x,x,.,x,x,x,x,x,x,.,x,x,x,.,.,.,.,x,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,x,.,.,x,x,x,.,x,x,x,x,x,x,x,x,x,x,.,x,x,x,.,.,x,x,x,.,.,.,.,.,.,.,.,.,.,.,.,x,x,x,.,.,x,x,x,.,x,x,x,.,x,' +
+                'x,.,x,x,x,.,x,x,x,.,.,.,.,.,.,.,.,.,.,x,x,.,.,.,.,.,.,.,.,.'
+            )
             this.rounds = options.rounds
 
             // Generate pool
             this.pool = [
-                util.pick(pool).clone(),
-                util.pick(pool).clone(),
+                util.pick(pool).clone().mutate(),
+                util.pick(pool).clone().mutate(),
             ]
-
-            // Mix pool if required
-            if (options.mix) {
-                for (var i in this.pool) {
-                    this.pool[i].crossover(util.pick(pool))
-                }
-            }
 
             // Add players in random positions
             for (var i in this.pool) {
@@ -53,14 +49,13 @@ if (typeof require != 'undefined') {
             }
 
 
-            if (this.round%8 == 0 && this.objects.length < 20) {
+            if (this.round % 8 == 0 && this.objects.length < 20) {
                 this.spawn(Dna.c.code)
             }
 
-            this.draw && postMessage({
-                draw: true,
-                width: this.w*u,
-                height: this.h*u,
+            this.draw && _post('draw', {
+                width: this.w * u,
+                height: this.h * u,
                 ops: this.ctxOps()
             })
 
@@ -90,9 +85,9 @@ if (typeof require != 'undefined') {
             for (var x = 0; x < this.w; x++) {
                 for (var y = 0; y < this.h; y++) {
                     var color
-                    this.isEmpty(x, y) && (color = '#11a')
+                    this.isEmpty(x, y) && (color = '#000')
                     if (this.isWall(x, y))
-                        color = '#262626'
+                        color = 'rgba(0,0,0,0)'
                     else
                         color = '#111'
                     ops.push(new Op('fillStyle', color))
@@ -140,7 +135,9 @@ if (typeof require != 'undefined') {
                 y = parseInt(Math.random() * this.h)
             } while (!this.isEmpty(x, y))
             var obj = {
-                x: x, y: y, type: type
+                x: x,
+                y: y,
+                type: type
             }
             this.append(obj)
             return obj
@@ -172,10 +169,5 @@ if (typeof require != 'undefined') {
         }
 
     }
-
-    if (util.module())
-        module.exports = World
-    else
-        util.exports(this).World = World
 
 }).call(this)

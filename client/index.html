@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <style media="screen">
+            body {
+                background-color: #181a1b;
+            }
+            canvas {
+                display: block;
+                margin: 0 auto;
+                opacity: 1;
+                border: rgba(255,255,255,.1);
+                margin-top: 5em;
+            }
+
+        </style>
+    </head>
+    <body>
+        <canvas id="canvas"></canvas>
+
+        <script type="text/javascript">
+            var _canvas = document.querySelector('#canvas'),
+                _ctx = _canvas.getContext('2d'),
+                _worker = null
+
+            var _get = function (key) {
+                var query = window.location.search.substring(1),
+                    vars = query.split("&")
+
+                for (var i = 0; i < vars.length; i++) {
+                    var pair = vars[i].split("=");
+                    if (pair[0] == key) {
+                        return pair[1];
+                    }
+                }
+                return (false)
+            }
+
+            var _reload = () => {
+                if (!_worker)
+                    return
+                console.log('Reloading in two seconds')
+                _worker.terminate()
+                _worker = null
+                setTimeout(() => {
+                    // console.clear()
+                    _init()
+                }, 2000)
+            }
+
+            var _draw = (args) => {
+                if (args.width != _canvas.width || args.height != _canvas.height) {
+                    _canvas.width = args.width
+                    _canvas.height = args.height
+                }
+
+                for (var i in args.ops) {
+                    var op = args.ops[i].op
+                    params = args.ops[i].params
+
+                    // Call function vs set property
+                    if (params.constructor === Array) {
+                        _ctx[op].apply(_ctx, params)
+                    } else {
+                        _ctx[op] = params
+                    }
+                }
+            }
+
+            var _init = () => {
+                _worker = new Worker('main.js')
+                var packet = {
+                    server: _get('s'),
+                    draw: _get('draw') ? { fps: 10} : null
+                }
+                _worker.postMessage(packet)
+                console.log(packet)
+                _worker.onmessage = (e) => {
+                    var message = e.data
+
+                    switch (message.command) {
+                        case 'reload':
+                            _reload()
+                            break
+
+                        case 'draw':
+                            _draw(message.data)
+                            break
+                    }
+                }
+                _worker.onerror = (e) => {
+                    console.log('Error inside a worker thread')
+                    console.error('File:', e.filename + ':' + e.lineno, e.message)
+                    _reload()
+                }
+            }
+
+            var _worker = null
+            _init()
+        </script>
+    </body>
+</html>

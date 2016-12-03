@@ -1,7 +1,7 @@
 "use strict";
 
 (function() {
-    var util = {
+    var util = this.util = {
 
         solve: (x) => {
             return typeof x == 'function' ? x() : x
@@ -39,14 +39,6 @@
             return (false)
         },
 
-        window: function() {
-            return typeof window != 'undefined' ? window : null
-        },
-
-        module: function() {
-            return typeof module != 'undefined' ? module : null
-        },
-
         pick: function(arr) {
             return arr[parseInt(arr.length * Math.random())]
         },
@@ -54,16 +46,6 @@
         clone: (obj) => {
             return JSON.parse(JSON.stringify(obj))
         },
-
-        exports: (src) => {
-            if (util.window()) return window
-            if (util.module()) return src.module.exports
-            return self
-        }
     }
 
-    if (util.module())
-        module.exports = util
-    else
-        util.exports(this).util = util
 }).call(this)
