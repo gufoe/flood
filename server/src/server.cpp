@@ -130,8 +130,18 @@ int main(int argc, const char **argv) {
 	uWS::Hub hub;
 	hub.onConnection(worker_add);
 	hub.onMessage(worker_rec);
-	hub.listen(9666);
 
-	cout << "Listening for connections...\n";
+    uS::TLS::Context c = uS::TLS::createContext("ssl/cert.pem",
+                                                "ssl/key.pem",
+                                                "123");
+
+	bool ssl = (bool) c;
+	if (!hub.listen(9666, c)) {
+		cerr << "Failed to listen on port 9666\n";
+		return 1;
+	}
+
+	cout << "Listening for connections on protocol " << (ssl ? "wss" : "ws") << "://...\n";
 	hub.run();
+	return 0;
 }

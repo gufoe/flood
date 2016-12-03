@@ -188,7 +188,7 @@
     }
 
     Net.genWeight = (factor) => {
-        return 3 * (factor ? factor : 1) * (1 - Math.random() * 2)
+        return 10 * (factor ? factor : 1) * (1 - Math.random() * 2)
     }
 
     function zArray(n) {

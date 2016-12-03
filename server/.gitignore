@@ -1,6 +1,5 @@
 build/
 bin/
-cert/
 server
 *.gch
 .debug*
